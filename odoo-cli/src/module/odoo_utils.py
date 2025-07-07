@@ -174,12 +174,19 @@ def run():
         args += " --without-demo"
 
     if with_demo_data == "y":
+        print("[bold green]✓ db will Initialize with Extra Demo Data.")
         extra_addons += [EXTRA_DEMO_MODULE_PATH]
 
     # with_exta = typer.prompt("Extra modules? (y/n)", "n")
     with_exta = "n"
     if with_exta != "n":
+        print("[bold green]✓ db will Initialize with Extra Modules.")
         extra_addons += [extra_path]
 
+    extra_addons_path = ""
+    if len(extra_addons):
+        for ex_path in extra_addons:
+            extra_addons_path += "," + ex_path
+
     print(f"[bold green]✓ Launching Odoo server on port {port} {'With' if with_demo_data == 'y' else 'without'} Demo Data")
-    os.system(f"{community_path}/odoo-bin --addons-path={community_path}/addons,{community_path}/odoo/addons,{enterprise_path}{',' + extra_path if extra_path else ''} -d {DB_NAME} -p {port} {args} --dev=all")
+    os.system(f"{community_path}/odoo-bin --addons-path={community_path}/addons,{community_path}/odoo/addons,{enterprise_path}{extra_addons_path} -d {DB_NAME} -p {port} {args} --dev=all")
