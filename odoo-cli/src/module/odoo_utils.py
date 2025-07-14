@@ -53,7 +53,8 @@ def init():
         "enterprise_path": enterprise_path,
         "community_path": community_path,
         "port": port,
-        "configuration_file_path": configuration_file_path
+        "configuration_file_path": configuration_file_path,
+        "version": ""
     })
 
     if not result:
