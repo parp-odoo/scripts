@@ -14,6 +14,7 @@ DB_NAME = "testdb"
 VERSION_WITHOUT_DEMO_TAG = ["17.0", "18.0", "saas-18.1", "saas-18.2"]
 
 EXTRA_DEMO_MODULE_PATH = "/home/odoo/odoo/x/"
+EXTRA_DEMO_NOT_SUPPORTED_VERSIONS = ["17.0", "18.0"]
 
 
 def choices():
@@ -37,6 +38,12 @@ def chnage_cache_version():
     version = configuration.get("version")
     target_version = typer.prompt("Which version to run odoo server?", version)
     set_version(CACHE_FILE_NAME, target_version)
+
+
+def prompt_input(prompt_text, default_value=None, use_default=False, **kwarg):
+    if use_default:
+        return default_value
+    return typer.prompt(prompt_text, default_value, **kwarg)
 
 
 def init():
@@ -71,6 +78,8 @@ def version():
     configuration = read_json_configuration(CACHE_FILE_NAME)
     target_version = typer.prompt("Target Odoo version?", configuration.get("target_version") or "", type=str)
 
+    should_run = typer.prompt(f"Run the Odoo server on {target_version}? (y/n)", "y", type=str)
+
     enterprise_repo = Repo(configuration.get("enterprise_path"))
     community_repo = Repo(configuration.get("community_path"))
 
@@ -90,15 +99,14 @@ def version():
         print("[bold green]Odoo version updated successfully")
         set_version(CACHE_FILE_NAME, target_version)
 
-        should_run = typer.prompt(f"Run the Odoo server on {target_version}? (y/n)", "y", type=str)
         if should_run == "y":
-            run()
+            run(use_default=True)
     except:
         print("[bold red]Error updating versions")
         return False
 
 
-def run():
+def run(use_default=False):
     """Run the Odoo server"""
 
     # Load configuration
@@ -160,7 +168,7 @@ def run():
     args = "-u pos_restaurant"
 
     # DropDB old DB
-    drop_db = typer.prompt(f"Want to drop the Odoo database - {DB_NAME}? (y/n)", "y")
+    drop_db = prompt_input(f"Want to drop the Odoo database - {DB_NAME}? (y/n)", "y", use_default)
     if drop_db == "y":
         os.system(f"dropdb {DB_NAME}")
         print(f"[bold green]✓ Odoo database - {DB_NAME} drop successfully.")
@@ -168,7 +176,7 @@ def run():
 
     extra_addons = []
 
-    with_demo_data = typer.prompt("Demo data? (y/n)", "y")
+    with_demo_data = prompt_input("Demo data? (y/n)", "y", use_default)
     if with_demo_data == "y" and version not in VERSION_WITHOUT_DEMO_TAG:
         args += " --with-demo"
     elif with_demo_data != "y" and version in VERSION_WITHOUT_DEMO_TAG:
@@ -178,9 +186,9 @@ def run():
         print("[bold green]✓ db will Initialize with Extra Demo Data.")
         extra_addons += [EXTRA_DEMO_MODULE_PATH]
 
-    # with_exta = typer.prompt("Extra modules? (y/n)", "n")
+    # with_exta = prompt_input("Extra modules? (y/n)", "n", use_default)
     with_exta = "n"
-    if with_exta != "n":
+    if with_exta != "n" and version not in EXTRA_DEMO_NOT_SUPPORTED_VERSIONS:
         print("[bold green]✓ db will Initialize with Extra Modules.")
         extra_addons += [extra_path]
 
