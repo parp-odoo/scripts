@@ -182,15 +182,16 @@ def run(use_default=False):
     elif with_demo_data != "y" and version in VERSION_WITHOUT_DEMO_TAG:
         args += " --without-demo"
 
-    if with_demo_data == "y":
+    if with_demo_data == "y" and version not in EXTRA_DEMO_NOT_SUPPORTED_VERSIONS:
         print("[bold green]✓ db will Initialize with Extra Demo Data.")
         extra_addons += [EXTRA_DEMO_MODULE_PATH]
 
     # with_exta = prompt_input("Extra modules? (y/n)", "n", use_default)
-    with_exta = "n"
-    if with_exta != "n" and version not in EXTRA_DEMO_NOT_SUPPORTED_VERSIONS:
+    with_exta = "y"
+    if with_exta != "n" and version in ['18.0', '17.0', '16.0']:
         print("[bold green]✓ db will Initialize with Extra Modules.")
-        extra_addons += [extra_path]
+        extra_version_path = extra_path + '/' + version
+        extra_addons += [extra_version_path]
 
     extra_addons_path = ""
     if len(extra_addons):
