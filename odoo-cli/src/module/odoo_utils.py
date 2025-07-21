@@ -83,21 +83,22 @@ def version():
     enterprise_repo = Repo(configuration.get("enterprise_path"))
     community_repo = Repo(configuration.get("community_path"))
 
+    def chnage_repo_version(repo):
+
+        repo.remotes[0].fetch()
+        print("[bold green]  ✓ Remote fetched")
+
+        repo.git.checkout(target_version)
+        print(f"[bold green]  ✓ Version changed to {target_version}")
+
+        repo.git.pull('--rebase')
+        print("[bold green]  ✓ Repository updated with rebase")
+
     try:
         print("[bold green]Enterprise repository:")
-        enterprise_repo.git.checkout(target_version)
-        print(f"[bold green]  ✓ Version changed to {target_version}")
-        enterprise_repo.remotes[0].pull()
-        print("[bold green]  ✓ Repository updated successfully")
-
+        chnage_repo_version(enterprise_repo)
         print("[bold green]Community repository:")
-        community_repo.git.checkout(target_version)
-        print(f"[bold green]  ✓ Version changed to {target_version}")
-        community_repo.remotes[0].pull()
-        print("[bold green]  ✓ Repository updated successfully")
-
-        print("[bold green]Odoo version updated successfully")
-        set_version(CACHE_FILE_NAME, target_version)
+        chnage_repo_version(community_repo)
 
         if should_run == "y":
             run(use_default=True)
