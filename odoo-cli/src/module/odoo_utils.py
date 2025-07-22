@@ -84,9 +84,9 @@ def version():
     community_repo = Repo(configuration.get("community_path"))
 
     def chnage_repo_version(repo):
-
-        repo.remotes[0].fetch()
-        print("[bold green]  ✓ Remote fetched")
+        for remote in repo.remotes:
+            remote.fetch()
+            print("[bold green]  ✓ Remote fetched", remote.name)
 
         repo.git.checkout(target_version)
         print(f"[bold green]  ✓ Version changed to {target_version}")
@@ -99,6 +99,8 @@ def version():
         chnage_repo_version(enterprise_repo)
         print("[bold green]Community repository:")
         chnage_repo_version(community_repo)
+
+        set_version(CACHE_FILE_NAME, target_version)
 
         if should_run == "y":
             run(use_default=True)
