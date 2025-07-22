@@ -61,7 +61,8 @@ def init():
         "community_path": community_path,
         "port": port,
         "configuration_file_path": configuration_file_path,
-        "version": ""
+        "version": "",
+        "with_extra": "n",
     })
 
     if not result:
@@ -124,6 +125,7 @@ def run(use_default=False):
     port = configuration.get("port")
     configuration_file_path = configuration.get("configuration_file_path")
     version = configuration.get("version")
+    with_extra = configuration.get("with_extra")
 
     try:
         # Verify enterprise path exists (optional)
@@ -189,9 +191,7 @@ def run(use_default=False):
         print("[bold green]✓ db will Initialize with Extra Demo Data.")
         extra_addons += [EXTRA_DEMO_MODULE_PATH]
 
-    # with_exta = prompt_input("Extra modules? (y/n)", "n", use_default)
-    with_exta = "n"
-    if with_exta != "n" and version in ['18.0', '17.0', '16.0']:
+    if with_extra == "y" and version in ['18.0', '17.0', '16.0']:
         print("[bold green]✓ db will Initialize with Extra Modules.")
         extra_version_path = extra_path + '/' + version
         extra_addons += [extra_version_path]
