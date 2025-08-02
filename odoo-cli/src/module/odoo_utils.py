@@ -63,6 +63,7 @@ def init():
         "configuration_file_path": configuration_file_path,
         "version": "",
         "with_extra": "n",
+        "with_extra_demo": "n",
     })
 
     if not result:
@@ -126,6 +127,7 @@ def run(use_default=False):
     configuration_file_path = configuration.get("configuration_file_path")
     version = configuration.get("version")
     with_extra = configuration.get("with_extra")
+    with_extra_demo = configuration.get("with_extra_demo")
 
     try:
         # Verify enterprise path exists (optional)
@@ -187,7 +189,7 @@ def run(use_default=False):
     elif with_demo_data != "y" and version in VERSION_WITHOUT_DEMO_TAG:
         args += " --without-demo"
 
-    if with_demo_data == "y" and version not in EXTRA_DEMO_NOT_SUPPORTED_VERSIONS:
+    if with_demo_data == "y" and with_extra_demo == "y" and version not in EXTRA_DEMO_NOT_SUPPORTED_VERSIONS:
         print("[bold green]✓ db will Initialize with Extra Demo Data.")
         extra_addons += [EXTRA_DEMO_MODULE_PATH]
 

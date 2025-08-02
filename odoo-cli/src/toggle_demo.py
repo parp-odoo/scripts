@@ -7,27 +7,27 @@ CACHE_FILE_NAME = "odoo-cli.json"
 app = typer.Typer()
 
 
-def toggle_extra_flag():
+def toggle_demo_flag():
     configuration = read_json_configuration(CACHE_FILE_NAME) or {}
-    with_extra = configuration.get("with_extra")
+    with_extra_demo = configuration.get("with_extra_demo")
 
-    with_extra = "n" if with_extra == "y" else "y"
+    with_extra_demo = "n" if with_extra_demo == "y" else "y"
 
     result = write_json_configuration(CACHE_FILE_NAME, {
         **configuration,
-        "with_extra": with_extra,
+        "with_extra_demo": with_extra_demo,
 
     })
 
     if not result:
-        print("[bold red]Error toggling extra flag")
+        print("[bold red]Error toggling extra demo flag")
         return False
 
-    print("[bold green]✓ Extra flag is set to ", with_extra)
+    print("[bold green]✓ Extra Demo flag is set to ", with_extra_demo)
 
 
 def main():
-    toggle_extra_flag()
+    toggle_demo_flag()
 
 
 if __name__ == "__main__":
