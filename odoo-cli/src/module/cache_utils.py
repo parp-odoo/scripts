@@ -40,9 +40,21 @@ def set_version(file, version):
     except:
         return False
 
+
 def get_version(file):
     try:
         config = read_json_configuration(file)
         return config.get("version", False)
+    except:
+        return False
+
+
+def set_command(file, command):
+    try:
+        config = read_json_configuration(file)
+        config["command"] = command
+        write_json_configuration(file, config)
+
+        return True
     except:
         return False

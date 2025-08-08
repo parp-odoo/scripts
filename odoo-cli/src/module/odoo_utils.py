@@ -3,7 +3,7 @@ import os
 
 from rich import print
 from git import Repo
-from .cache_utils import read_json_configuration, write_json_configuration, set_version, get_version
+from .cache_utils import read_json_configuration, write_json_configuration, set_version, set_command
 
 
 CACHE_PATH = f"{os.path.dirname(__file__)}/../../.cache"
@@ -204,4 +204,7 @@ def run(use_default=False):
             extra_addons_path += "," + ex_path
 
     print(f"[bold green]✓ Launching Odoo server on port {port} {'With' if with_demo_data == 'y' else 'without'} Demo Data")
-    os.system(f"{community_path}/odoo-bin --addons-path={community_path}/addons,{community_path}/odoo/addons,{enterprise_path}{extra_addons_path} -d {DB_NAME} -p {port} {args} --dev=all")
+    command = f"{community_path}/odoo-bin --addons-path={community_path}/addons,{community_path}/odoo/addons,{enterprise_path}{extra_addons_path} -d {DB_NAME} -p {port} {args} --dev=all"
+
+    set_command(CACHE_FILE_NAME, command)
+    os.system(command)
