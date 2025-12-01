@@ -8,13 +8,14 @@ from .cache_utils import read_json_configuration, write_json_configuration, set_
 
 CACHE_PATH = f"{os.path.dirname(__file__)}/../../.cache"
 CACHE_FILE_NAME = "odoo-cli.json"
+WEB_SHELL_PATH = "/home/odoo/odoo/shell"
 
 DB_NAME = "testdb"
 
-VERSION_WITHOUT_DEMO_TAG = ["17.0", "18.0", "saas-18.1", "saas-18.2"]
+VERSION_WITHOUT_DEMO_TAG = ["16.0", "17.0", "18.0", "saas-18.1", "saas-18.2"]
 
-EXTRA_DEMO_MODULE_PATH = "/home/odoo/odoo/x/"
-EXTRA_DEMO_NOT_SUPPORTED_VERSIONS = ["17.0", "18.0"]
+EXTRA_DEMO_MODULE_PATH = "/home/odoo/odoo/x/addons/"
+EXTRA_DEMO_NOT_SUPPORTED_VERSIONS = ["16.0", "17.0", "18.0"]
 
 
 def choices():
@@ -174,11 +175,13 @@ def run(use_default=False):
     # Verify if cache db exist:
     args = "-u pos_restaurant"
 
+    db_name = DB_NAME + "-" + version
+
     # DropDB old DB
-    drop_db = prompt_input(f"Want to drop the Odoo database - {DB_NAME}? (y/n)", "y", use_default)
+    drop_db = prompt_input(f"Want to drop the Odoo database - {db_name}? (y/n)", "y", use_default)
     if drop_db == "y":
-        os.system(f"dropdb {DB_NAME}")
-        print(f"[bold green]✓ Odoo database - {DB_NAME} drop successfully.")
+        os.system(f"dropdb {db_name}")
+        print(f"[bold green]✓ Odoo database - {db_name} drop successfully.")
         args = "-i pos_restaurant"
 
     extra_addons = []
@@ -198,13 +201,13 @@ def run(use_default=False):
         extra_version_path = extra_path + '/' + version
         extra_addons += [extra_version_path]
 
-    extra_addons_path = ""
+    extra_addons_path = "," + WEB_SHELL_PATH
     if len(extra_addons):
         for ex_path in extra_addons:
             extra_addons_path += "," + ex_path
 
     print(f"[bold green]✓ Launching Odoo server on port {port} {'With' if with_demo_data == 'y' else 'without'} Demo Data")
-    command = f"{community_path}/odoo-bin --addons-path={community_path}/addons,{community_path}/odoo/addons,{enterprise_path}{extra_addons_path} -d {DB_NAME} -p {port} {args} --dev=all"
+    command = f"{community_path}/odoo-bin --addons-path={community_path}/addons,{community_path}/odoo/addons,{enterprise_path}{extra_addons_path} -d {db_name} -p {port} {args} --dev=all"
 
     set_command(CACHE_FILE_NAME, command)
     os.system(command)
