@@ -15,7 +15,7 @@ DB_NAME = "testdb"
 VERSION_WITHOUT_DEMO_TAG = ["16.0", "17.0", "18.0", "saas-18.1", "saas-18.2"]
 
 EXTRA_DEMO_MODULE_PATH = "/home/odoo/odoo/x/addons/"
-EXTRA_DEMO_NOT_SUPPORTED_VERSIONS = ["16.0", "17.0", "18.0"]
+EXTRA_DEMO_NOT_SUPPORTED_VERSIONS = ["16.0", "17.0"]
 
 
 def choices():
