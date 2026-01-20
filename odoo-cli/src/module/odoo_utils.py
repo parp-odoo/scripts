@@ -102,6 +102,7 @@ def version():
         chnage_repo_version(enterprise_repo)
         print("[bold green]Community repository:")
         chnage_repo_version(community_repo)
+        change_extra_demo_version(target_version)
 
         set_version(CACHE_FILE_NAME, target_version)
 
@@ -110,6 +111,24 @@ def version():
     except:
         print("[bold red]Error updating versions")
         return False
+
+
+def change_extra_demo_version(target_version):
+    configuration = read_json_configuration(CACHE_FILE_NAME)
+    extra_demo_path = configuration.get("extra_demo_path", "/home/odoo/odoo/x/")
+    extra_demo_repo = Repo(extra_demo_path)
+    try:
+        current_version = extra_demo_repo.git.rev_parse("--abbrev-ref", "HEAD")
+        if current_version == target_version:
+            print(f"[bold cyan]ℹ Extra demo is already on '{target_version}'")
+            return True
+
+        extra_demo_repo.git.checkout(target_version)
+    except Exception as e:
+        print(f"[bold yellow]⚠ Failed to switch extra demo version: {e}")
+        return False
+    print(f"[bold green]✓ Extra demo version switched to '{target_version}'")
+    return True
 
 
 def run(use_default=False):
@@ -129,6 +148,7 @@ def run(use_default=False):
     version = configuration.get("version")
     with_extra = configuration.get("with_extra")
     with_extra_demo = configuration.get("with_extra_demo")
+    extra_demo_path = configuration.get("extra_demo_path")
 
     try:
         # Verify enterprise path exists (optional)
@@ -186,7 +206,8 @@ def run(use_default=False):
 
     extra_addons = []
 
-    with_demo_data = prompt_input("Demo data? (y/n)", "y", use_default)
+    # with_demo_data = prompt_input("Demo data? (y/n)", "y", use_default)
+    with_demo_data = "y"
     if with_demo_data == "y" and version not in VERSION_WITHOUT_DEMO_TAG:
         args += " --with-demo"
     elif with_demo_data != "y" and version in VERSION_WITHOUT_DEMO_TAG:
@@ -196,15 +217,17 @@ def run(use_default=False):
         print("[bold green]✓ db will Initialize with Extra Demo Data.")
         extra_addons += [EXTRA_DEMO_MODULE_PATH]
 
-    if with_extra == "y" and version in ['18.0', '17.0', '16.0']:
-        print("[bold green]✓ db will Initialize with Extra Modules.")
-        extra_version_path = extra_path + '/' + version
-        extra_addons += [extra_version_path]
+    # if with_extra == "y" and version in ['18.0', '17.0', '16.0']:
+    #     print("[bold green]✓ db will Initialize with Extra Modules.")
+    #     extra_version_path = extra_path + '/' + version
+    #     extra_addons += [extra_version_path]
 
     extra_addons_path = "," + WEB_SHELL_PATH
     if len(extra_addons):
         for ex_path in extra_addons:
             extra_addons_path += "," + ex_path
+
+    change_extra_demo_version(version)
 
     print(f"[bold green]✓ Launching Odoo server on port {port} {'With' if with_demo_data == 'y' else 'without'} Demo Data")
     command = f"{community_path}/odoo-bin --addons-path={community_path}/addons,{community_path}/odoo/addons,{enterprise_path}{extra_addons_path} -d {db_name} -p {port} {args} --dev=all"
