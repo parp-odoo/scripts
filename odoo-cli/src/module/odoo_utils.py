@@ -1,37 +1,82 @@
-import typer
-import os
-
-from rich import print
 from git import Repo
+import os
+import re
+from rich import print
+from simple_term_menu import TerminalMenu
+import typer
+
 from .cache_utils import read_json_configuration, write_json_configuration, set_version, set_command
 
-
+ALL_VERSIONS = ["master", "19.0", "18.0", "saas-19.1", "saas-18.4", "saas-18.3", "saas-18.2"]
 CACHE_PATH = f"{os.path.dirname(__file__)}/../../.cache"
 CACHE_FILE_NAME = "odoo-cli.json"
-WEB_SHELL_PATH = "/home/odoo/odoo/shell"
-
 DB_NAME = "testdb"
-
-VERSION_WITHOUT_DEMO_TAG = ["16.0", "17.0", "18.0", "saas-18.1", "saas-18.2"]
-
 EXTRA_DEMO_MODULE_PATH = "/home/odoo/odoo/x/addons/"
 EXTRA_DEMO_NOT_SUPPORTED_VERSIONS = ["16.0", "17.0"]
+VERSION_WITHOUT_DEMO_TAG = ["16.0", "17.0", "18.0", "saas-18.1", "saas-18.2"]
+WEB_SHELL_PATH = "/home/odoo/odoo/shell"
 
 
 def choices():
-    print("[bold yellow]Welcome to Odoo CLI, what do you want to do?")
-    print("[bold]1. Run Odoo server")
-    print("[bold]2. Initialize configuration")
-    print("[bold]3. Change version")
-    option = typer.prompt("Select an option")
+    menu_items = [
+        ("Run Odoo server", run_server),
+        ("Drop database & run server", drop_and_run_server),
+        ("Initialize configuration", init),
+        ("Change version", version),
+    ]
+    terminal_menu = TerminalMenu(
+        menu_entries=[f"{i + 1}. {label}" for i, (label, _) in enumerate(menu_items)],
+        title="Welcome to Odoo CLI — what do you want to do?",
+        menu_cursor="> ",
+        menu_cursor_style=("fg_yellow", "bold"),
+        menu_highlight_style=("fg_cyan", "bold", "italics"),
+        cycle_cursor=True,
+        clear_screen=True,
+    )
+    selected_index = terminal_menu.show()
+    if selected_index is None:
+        return  # user exited menu
+    _, handler = menu_items[selected_index]
+    handler()
 
-    if option == "1":
+
+def drop_and_run_server():
+    if not get_and_set_current_version():
         chnage_cache_version()
-        run()
-    elif option == "2":
-        init()
-    elif option == "3":
-        version()
+    run(True)
+
+
+def run_server():
+    if not get_and_set_current_version():
+        chnage_cache_version()
+    run()
+
+
+def get_version_from_branch(branch):
+    if branch == "master" or branch.startswith("master-"):
+        return "master"
+    saas_match = re.match(r"(saas-\d+\.\d+)", branch)
+    if saas_match:
+        return saas_match.group(1)
+    version_match = re.match(r"(\d+\.0)", branch)
+    if version_match:
+        return version_match.group(1)
+    return branch
+
+
+def get_and_set_current_version():
+    configuration = read_json_configuration(CACHE_FILE_NAME)
+    community_path = configuration.get("community_path")
+    community_repo = Repo(community_path)
+    try:
+        current_branch = community_repo.git.rev_parse("--abbrev-ref", "HEAD")
+        current_version = get_version_from_branch(current_branch)
+        if current_version:
+            set_version(CACHE_FILE_NAME, current_version)
+        return current_version
+    except Exception as e:
+        print(f"[bold yellow]⚠ Failed to get current version: {e}")
+        return False
 
 
 def chnage_cache_version():
@@ -74,14 +119,37 @@ def init():
     print("[bold green]Configuration file created successfully")
 
 
+def _select_version():
+    terminal_menu = TerminalMenu(
+        menu_entries=ALL_VERSIONS,
+        title="Target Version",
+        menu_cursor="> ",
+        menu_cursor_style=("fg_yellow", "bold"),
+        menu_highlight_style=("fg_cyan", "bold", "italics"),
+        cycle_cursor=True,
+    )
+    menu_entry_index = terminal_menu.show()
+    return ALL_VERSIONS[menu_entry_index]
+
+
 def version():
     print("[bold yellow]We will change the Odoo version and drop the database")
     print("[bold yellow]Please provide the following information:")
 
     configuration = read_json_configuration(CACHE_FILE_NAME)
-    target_version = typer.prompt("Target Odoo version?", configuration.get("target_version") or "", type=str)
+    # target_version = typer.prompt("Target Odoo version?", configuration.get("target_version") or "", type=str)
+    target_version = _select_version()
+    print("[bold Green]Selected version : ", target_version)
 
-    should_run = typer.prompt(f"Run the Odoo server on {target_version}? (y/n)", "y", type=str)
+    terminal_menu = TerminalMenu(
+        menu_entries=["Yes", "No"],
+        title=f"Run the Odoo server on {target_version}?",
+        menu_cursor="> ",
+        menu_cursor_style=("fg_yellow", "bold"),
+        menu_highlight_style=("fg_cyan", "bold", "italics"),
+        cycle_cursor=True,
+    )
+    should_run = terminal_menu.show() == 0
 
     enterprise_repo = Repo(configuration.get("enterprise_path"))
     community_repo = Repo(configuration.get("community_path"))
@@ -107,7 +175,7 @@ def version():
         set_version(CACHE_FILE_NAME, target_version)
 
         if should_run == "y":
-            run(use_default=True)
+            run(dropdb=True)
     except:
         print("[bold red]Error updating versions")
         return False
@@ -131,7 +199,7 @@ def change_extra_demo_version(target_version):
     return True
 
 
-def run(use_default=False):
+def run(dropdb=False):
     """Run the Odoo server"""
 
     # Load configuration
@@ -198,8 +266,8 @@ def run(use_default=False):
     db_name = DB_NAME + "-" + version
 
     # DropDB old DB
-    drop_db = prompt_input(f"Want to drop the Odoo database - {db_name}? (y/n)", "y", use_default)
-    if drop_db == "y":
+    # drop_db = prompt_input(f"Want to drop the Odoo database - {db_name}? (y/n)", "y", dropdb)
+    if dropdb:
         os.system(f"dropdb {db_name}")
         print(f"[bold green]✓ Odoo database - {db_name} drop successfully.")
         args = "-i pos_restaurant"
