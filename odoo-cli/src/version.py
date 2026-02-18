@@ -31,10 +31,10 @@ def change_version():
     community_repo = Repo(configuration.get("community_path"))
 
     try:
-        richPrint("[bold green]Enterprise repository:")
-        chnage_repo_version(enterprise_repo, target_version)
-        richPrint("[bold green]Community repository:")
-        chnage_repo_version(community_repo, target_version)
+        richPrint("[bold deep_pink4]Enterprise repository:")
+        chnage_repo_version(enterprise_repo, target_version, "deep_pink4")
+        richPrint("[bold dark_orange3]Community repository:")
+        chnage_repo_version(community_repo, target_version, "dark_orange3")
         change_extra_demo_version(target_version)
 
         set_version(target_version)
@@ -46,16 +46,16 @@ def change_version():
         return False
 
 
-def chnage_repo_version(repo, target_version):
+def chnage_repo_version(repo, target_version, color="purple3"):
     for remote in repo.remotes:
         remote.fetch()
-        richPrint("[bold green]  ✓ Remote fetched", remote.name)
+        richPrint(f"[bold {color}]  ✓ Remote fetched", remote.name)
 
     repo.git.checkout(target_version)
-    richPrint(f"[bold green]  ✓ Version changed to {target_version}")
+    richPrint(f"[bold {color}]  ✓ Version changed to {target_version}")
 
     repo.git.pull('--rebase')
-    richPrint("[bold green]  ✓ Repository updated with rebase")
+    richPrint(f"[bold {color}]  ✓ Repository updated with rebase")
 
 
 def _select_version():
