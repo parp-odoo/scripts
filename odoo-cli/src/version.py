@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from git import Repo
 from rich import print as richPrint
 
@@ -7,6 +9,21 @@ from utils.json_config import read_config
 from utils.terminal_menu import get_selection
 from utils.version import set_version, change_extra_demo_version
 from utils.const import ALL_VERSIONS
+from itertools import starmap
+
+
+def run_threading_repo_version_change(repo_tasks):
+    results = []
+    with ThreadPoolExecutor(max_workers=len(repo_tasks)) as executor:
+        # futures = list(starmap(executor.submit, repo_tasks))
+        futures = [
+            executor.submit(chnage_repo_version, repo, version, color)
+            for repo, version, color in repo_tasks
+        ]
+        for future in as_completed(futures):
+            result = future.result()
+            results.append(result)
+    return results
 
 
 def change_version():
@@ -31,18 +48,23 @@ def change_version():
     community_repo = Repo(configuration.get("community_path"))
 
     try:
-        richPrint("[bold deep_pink4]Enterprise repository:")
-        chnage_repo_version(enterprise_repo, target_version, "deep_pink4")
-        richPrint("[bold dark_orange3]Community repository:")
-        chnage_repo_version(community_repo, target_version, "dark_orange3")
-        change_extra_demo_version(target_version)
+        # richPrint("[bold deep_pink4]Enterprise repository:")
+        # chnage_repo_version(enterprise_repo, target_version, "deep_pink4")
+        # richPrint("[bold dark_orange3]Community repository:")
+        # chnage_repo_version(community_repo, target_version, "dark_orange3")
 
+        run_threading_repo_version_change([
+            (community_repo, target_version, "dark_orange3"),
+            (enterprise_repo, target_version, "deep_pink4"),
+        ])
+
+        change_extra_demo_version(target_version)
         set_version(target_version)
 
         if should_run == 0:
             run(True)
-    except:
-        richPrint("[bold red]Error updating versions")
+    except Exception as err:
+        richPrint("[bold red]Error updating versions", err)
         return False
 
 
