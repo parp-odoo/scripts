@@ -1,6 +1,6 @@
 import os
 
-ALL_VERSIONS = ["master", "19.0", "18.0", "saas-19.1", "saas-18.4", "saas-18.3", "saas-18.2"]
+ALL_VERSIONS = ["master", "19.0", "18.0", "saas-19.2", "saas-19.1", "saas-18.4", "saas-18.3", "saas-18.2"]
 
 DB_NAME = "testdb"
 EXTRA_DEMO_MODULE_PATH = "/home/odoo/odoo/x/addons/"
