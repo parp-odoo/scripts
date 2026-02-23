@@ -1,0 +1,94 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "It's a New Day",
+            "dependsOn": [
+                "Runner",
+                "Ngrok",
+                "All Odoo Repos"
+            ],
+            "presentation": {
+                "group": "devGroup",
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "All Odoo Repos",
+            "dependsOn": [
+                "Comm",
+                "Upgrade",
+                "Ent"
+            ],
+            "presentation": {
+                "group": "devGroup",
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Comm",
+            "type": "shell",
+            "command": "cd community && git fetch --all && git checkout master && git pull --rebase && clear && exec fish",
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "group": "devGroup",
+                "reveal": "always",
+                "close": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Ent",
+            "type": "shell",
+            "command": "cd enterprise && git fetch --all && git checkout master && git pull --rebase && clear && exec fish",
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "group": "devGroup",
+                "reveal": "always",
+                "close": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Upgrade",
+            "type": "shell",
+            "command": "cd upgrade && git fetch --all && git checkout master && git pull --rebase && clear && exec fish",
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "group": "devGroup",
+                "reveal": "always",
+                "close": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Ngrok",
+            "type": "shell",
+            "command": "ngrok http --domain=blessed-merely-marmoset.ngrok-free.app 8069 && exec fish",
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "always",
+                "close": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Runner",
+            "type": "shell",
+            "command": "clear && exec fish",
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "always",
+                "close": false
+            },
+            "problemMatcher": []
+        }
+    ]
+}
