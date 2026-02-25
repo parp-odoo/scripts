@@ -6,7 +6,8 @@
             "dependsOn": [
                 "Runner",
                 "Ngrok",
-                "All Odoo Repos"
+                "All Odoo Repos",
+                "Detect Conflict"
             ],
             "presentation": {
                 "group": "devGroup",
@@ -82,6 +83,18 @@
             "label": "Runner",
             "type": "shell",
             "command": "clear && exec fish",
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "always",
+                "close": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Detect Conflict",
+            "type": "shell",
+            "command": "python3 /home/odoo/odoo/tools/conflict-detector/detect.py",
             "isBackground": true,
             "presentation": {
                 "panel": "dedicated",
