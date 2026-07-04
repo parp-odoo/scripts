@@ -94,6 +94,7 @@ def run(dropdb=False):
         enterprise_path,
         # WEB_SHELL_PATH,
         EXTRA_DEMO_MODULE_PATH,
+        # "/home/odoo/odoo/workspace/my",
     ])
     richPrint(f"[bold green]✓ Launching Odoo server on port {port} With Demo Data")
     command = f"{community_path}/odoo-bin --addons-path={addons_path} -d {db_name} -p {port} {args} --dev=all --http-interface=0.0.0.0 --limit-time-real=6969696969"

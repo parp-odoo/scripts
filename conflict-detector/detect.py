@@ -96,7 +96,7 @@ def print_dirty_prs(repo):
         print(f"   🌿 Branch: {pr.get('head', {}).get('ref')}")
 
 
-repo_list = ["odoo", "enterprise"]
+repo_list = ["odoo", "enterprise", "upgrade"]
 
 with ThreadPoolExecutor(max_workers=2) as executor:
     futures = [
