@@ -86,6 +86,9 @@ def run(dropdb=False):
     if version not in DEMO_TAG_INCOMPATIBLE_VERSIONS:
         args += " --with-demo"
 
+    if version in ("master"):
+        args += " --with-test-data"
+
     change_extra_demo_version(version)
 
     addons_path = ",".join([
