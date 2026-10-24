@@ -8,7 +8,7 @@ def init_config():
     richPrint("[bold yellow]We will initialize the configuration file")
     richPrint("[bold yellow]Please provide the following information:")
 
-    configuration = read_config()
+    configuration = read_config() or {}
     enterprise_path = prompt("Odoo enterprise path?", configuration.get("enterprise_path"), type=str)
     community_path = prompt("Odoo community path?", configuration.get("community_path"), type=str)
     port = prompt("Port to run Odoo server?", configuration.get("port", 8069), type=int)
@@ -21,6 +21,7 @@ def init_config():
         "config_path": config_path,
         "version": "",
         "with_extra": "n",
+        "test_tags": configuration.get("test_tags", ""),
     })
 
     if not result:

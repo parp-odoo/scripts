@@ -1,10 +1,8 @@
 import typer
-
 from config import init_config
-from server import run_server, drop_and_run_server
-from version import change_version
-
+from server import drop_and_run_server, run_server
 from utils.terminal_menu import get_selection
+from version import change_version
 
 
 def main():
@@ -18,7 +16,9 @@ def main():
     if selected_menu is None:
         return  # user exited menu
     _, handler = menu_items[selected_menu]
-    handler()
+    result = handler()
+    if handler in (run_server, drop_and_run_server):
+        raise typer.Exit(1 if result is False else result)
 
 
 if __name__ == "__main__":
