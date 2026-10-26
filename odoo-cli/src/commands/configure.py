@@ -14,6 +14,7 @@ def initialize_configuration(runtime):
             enterprise_path=runtime.ui.prompt("Odoo enterprise path?", settings.enterprise_path or None),
             community_path=runtime.ui.prompt("Odoo community path?", settings.community_path or None),
             port=runtime.ui.prompt("Port to run Odoo server?", settings.port, type=int),
+            test_port=runtime.ui.prompt("Port to run Odoo tests?", settings.test_port, type=int),
             config_path=runtime.ui.prompt("Where is the odoo.conf file?", settings.config_path or None),
         )
         runtime.store.save(settings)

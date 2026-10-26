@@ -52,6 +52,7 @@ Choose **Initialize configuration** and enter:
 - The path to your Odoo Enterprise folder.
 - The path to your Odoo Community folder.
 - The port to use, such as `8069`.
+- A separate port for tests, such as `8021`.
 - The path to your `odoo.conf` file.
 
 The CLI remembers these details. Choose the same option whenever you need to
@@ -79,6 +80,11 @@ bash odoo-cli/test.sh '.test_some_code'
 bash odoo-cli/test.sh ':TestClass'
 bash odoo-cli/test.sh '/point_of_sale'
 ```
+
+Tests use their own port, **8021** by default, so you can keep the server running
+in one terminal and run tests in another. Choose a different test port in
+**Initialize configuration** if needed. Existing configurations use `8021`
+automatically. Both commands use the current version's database.
 
 The video uses `:TestIrHttpConverters`, an existing Odoo test class.
 
@@ -110,13 +116,15 @@ bash odoo-cli/test.sh -- '-slow,/point_of_sale'
    Use Odoo to trigger the code with your breakpoint.
 
 Debugging is enabled automatically. After changing Python code, stop the server
-with **Ctrl+C**, start it again, and reattach. You can also attach during a test
-run while the tests are still running.
+with **Ctrl+C**, start it again, and reattach. To debug tests, choose
+**Odoo: Attach to tests** while the tests are running. The server uses debugger
+port `5678`; tests use `5679`, allowing both to run at the same time.
 
 ## Other menu options
 
 - **Change version** — select an Odoo version, update your repositories, and
   choose whether to start the server afterward.
 - **Drop database & run server** — delete the current version's database and
-  start again. This permanently removes that database's data. Starting the server
+  start again. If the database does not exist, the server starts and creates it.
+  This permanently removes any existing data in that database. Starting the server
   after changing versions also drops the selected version's database.

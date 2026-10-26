@@ -38,19 +38,20 @@ def run_server(runtime, options=None):
         settings = resolve_version(runtime, settings)
         command = build_server_command(settings, options)
         if options.drop_database and options.test_tags is None:
-            result = runtime.runner(["dropdb", settings.database_name], check=False)
+            result = runtime.runner(["dropdb", "--if-exists", settings.database_name], check=False)
             if result.returncode:
                 runtime.ui.error(f"Could not drop database {settings.database_name}.")
                 return result.returncode
-            runtime.ui.info(f"Odoo database {settings.database_name} dropped successfully.")
-        switch_extra_demo(runtime, settings)
+            runtime.ui.info(f"Odoo database {settings.database_name} is ready for initialization.")
+        if options.test_tags is None:
+            switch_extra_demo(runtime, settings)
         if options.test_tags is not None:
-            runtime.ui.info(f"Running Odoo tests on port {settings.port} using installed modules")
+            runtime.ui.info(f"Running Odoo tests on port {options.http_port(settings)} using installed modules")
         else:
             runtime.ui.info(f"Launching Odoo server on port {settings.port}")
         if options.debug:
             runtime.ui.info(
-                f"Starting debugpy on 127.0.0.1:{options.debug_port} without waiting for VS Code"
+                f"Starting debugpy on 127.0.0.1:{options.debugger_port} without waiting for VS Code"
             )
         return runtime.runner(command, check=False).returncode
     except (ConfigError, OSError) as error:
